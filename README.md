@@ -16,4 +16,9 @@ sudo rmmod neuroshell
 
 ## Tested
 - Vmware 17.
-- Xubuntu 24.04.2
+- Xubuntu 24.04.2 LTS (linux 6.11 kernel)
+### Working 
+- neuroshell.c (.ko)
+- neuroshell_enhanced.c (.ko)
+- test_neuroshell.sh
+- neuroshell.py
