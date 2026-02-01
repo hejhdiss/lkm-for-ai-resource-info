@@ -3,6 +3,7 @@
 
 obj-m += neuroshell.o
 obj-m += neuroshell_enhanced.o
+ccflags-y := -mavx512f
 
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
