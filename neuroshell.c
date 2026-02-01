@@ -1,3 +1,8 @@
+
+/* NeuroShell LKM 
+*  Licensed under GPL v3
+*/
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
