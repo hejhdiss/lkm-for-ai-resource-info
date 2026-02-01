@@ -6,6 +6,8 @@ A kernel module that exposes detailed hardware information via `/sys/kernel/neur
 
 > If you want more featured , delete neuroshell_enhnaced.c  then, rename neuroshell_enhnaced_.c to neuroshell_enhnaced.c .
 > Then make and  insmod,modprobe,rmmod - commands needed
+> 
+> Also for neuroshell_enhnaced__.c
 
 ---
 
