@@ -28,7 +28,12 @@
 #include <linux/pci.h>
 #include <linux/cpufreq.h>
 #include <linux/topology.h>
+#include <linux/mmzone.h>
+#include <linux/swap.h>
+
+#ifdef CONFIG_X86
 #include <asm/processor.h>
+#endif
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("HejHdiss");
@@ -142,11 +147,10 @@ static ssize_t cpu_info_show(struct kobject *kobj,
                              struct kobj_attribute *attr,
                              char *buf)
 {
-    struct cpuinfo_x86 *c;
     ssize_t len = 0;
     
 #ifdef CONFIG_X86
-    c = &boot_cpu_data;
+    struct cpuinfo_x86 *c = &boot_cpu_data;
     len += sprintf(buf + len, "vendor=%s\n", c->x86_vendor_id);
     len += sprintf(buf + len, "model=%s\n", c->x86_model_id);
     len += sprintf(buf + len, "family=%d\n", c->x86);
@@ -156,6 +160,7 @@ static ssize_t cpu_info_show(struct kobject *kobj,
     len += sprintf(buf + len, "cache_alignment=%d\n", c->x86_cache_alignment);
 #else
     len += sprintf(buf + len, "architecture=non-x86\n");
+    len += sprintf(buf + len, "cpus=%u\n", num_online_cpus());
 #endif
     
     return len;
@@ -181,14 +186,19 @@ static ssize_t mem_info_show(struct kobject *kobj,
 {
     struct sysinfo si;
     ssize_t len = 0;
+    unsigned long available;
     
     si_meminfo(&si);
     
     len += sprintf(buf + len, "total=%lu KB\n", si.totalram * (PAGE_SIZE / 1024));
     len += sprintf(buf + len, "free=%lu KB\n", si.freeram * (PAGE_SIZE / 1024));
-    len += sprintf(buf + len, "available=%lu KB\n", 
-                   si_mem_available() * (PAGE_SIZE / 1024));
+    
+    /* Calculate available memory safely */
+    available = si.freeram + si.bufferram;
+    len += sprintf(buf + len, "available=%lu KB\n", available * (PAGE_SIZE / 1024));
     len += sprintf(buf + len, "buffers=%lu KB\n", si.bufferram * (PAGE_SIZE / 1024));
+    
+    /* Get cached memory from global state */
     len += sprintf(buf + len, "cached=%lu KB\n", 
                    global_node_page_state(NR_FILE_PAGES) * (PAGE_SIZE / 1024));
     len += sprintf(buf + len, "shared=%lu KB\n", si.sharedram * (PAGE_SIZE / 1024));
@@ -229,7 +239,16 @@ static ssize_t numa_info_show(struct kobject *kobj,
         pgdat = NODE_DATA(nid);
         if (pgdat) {
             unsigned long total = pgdat->node_present_pages;
-            unsigned long free = sum_zone_node_page_state(nid, NR_FREE_PAGES);
+            unsigned long free = 0;
+            struct zone *zone;
+            
+            /* Sum free pages across all zones in this node */
+            for (zone = pgdat->node_zones; 
+                 zone < pgdat->node_zones + MAX_NR_ZONES; zone++) {
+                if (populated_zone(zone)) {
+                    free += zone_page_state(zone, NR_FREE_PAGES);
+                }
+            }
             
             len += sprintf(buf + len, "%4d %8lu %7lu\n",
                           nid,
