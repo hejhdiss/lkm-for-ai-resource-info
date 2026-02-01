@@ -4,6 +4,9 @@
 
 A kernel module that exposes detailed hardware information via `/sys/kernel/neuroshell/` to support AI workload optimization and system introspection.
 
+> If you want more featured , delete neuroshell_enhnaced.c  then, rename neuroshell_enhnaced_.c to neuroshell_enhnaced.c.
+>   then make and  insmod,modprobe,rmmod - commands needed
+
 ---
 
 ## ⚠️ Development Disclosure
