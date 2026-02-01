@@ -1,10 +1,10 @@
 /*
- * NeuroShell - Advanced Hardware Introspection Kernel Module
+ * NeuroShell LKM - Advanced Hardware Introspection Kernel Module
  * 
  * Provides detailed system hardware information via sysfs interface
  * at /sys/kernel/neuroshell/
  *
- * Copyright (C) 2025 HejHdiss
+ * Copyright (C) 2026 HejHdiss
  * Licensed under GPL v3
  *
  * Features:
